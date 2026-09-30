@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contour House — architectural study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Contour House home"><span class="brand-mark"></span><span>CONTOUR HOUSE</span></a>
+        <span class="edition">ALPINE RESIDENCE · STUDY 001</span>
+        <button class="sources" type="button">Project notes <span>↗</span></button>
+      </header>
+
+      <section class="experience" id="top">
+        <aside class="intro">
+          <p class="eyebrow">RIDGE LINE / 46° 34' N</p>
+          <h1>House in<br /><em>the contour.</em></h1>
+          <p class="lede">An inhabitable landscape shaped by three soft, cascading terraces and a quiet pavilion above the valley.</p>
+          <nav class="chapters" aria-label="Model chapters">
+            <button class="chapter active" data-focus="overview"><span>01</span> Explore</button>
+            <button class="chapter" data-focus="terraces"><span>02</span> Living terraces</button>
+            <button class="chapter" data-focus="screen"><span>03</span> Timber screen</button>
+            <button class="chapter" data-focus="roof"><span>04</span> Living roof</button>
+            <button class="chapter" data-focus="pavilion"><span>05</span> Lookout pavilion</button>
+          </nav>
+        </aside>
+
+        <section class="model-stage" aria-label="Interactive three dimensional model of Contour House">
+          <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+          <div class="mountains" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="model-wrap" id="modelWrap">
+            <div class="model" id="model">
+              <div class="site-pad"></div>
+              <div class="path path-one"></div><div class="path path-two"></div>
+              <div class="house lower floor"><div class="roof-garden"><span></span><span></span><span></span></div><div class="glass"></div><div class="slats"></div></div>
+              <div class="house middle floor"><div class="roof-garden"><span></span><span></span><span></span></div><div class="glass"></div><div class="slats"></div></div>
+              <div class="house upper floor"><div class="roof-garden"><span></span><span></span><span></span></div><div class="glass"></div><div class="slats"></div></div>
+              <div class="pavilion"><div class="pavilion-roof"></div><div class="pavilion-glass"></div><div class="pavilion-slats"></div></div>
+              <div class="terrace-ring"></div>
+            </div>
+          </div>
+          <p class="drag-hint"><span>↻</span> DRAG TO ORBIT &nbsp;&nbsp;·&nbsp;&nbsp; SCROLL TO ZOOM</p>
+          <div class="controls"><button id="reset" type="button">↻ <span>Reset</span></button><button id="wireframe" type="button">◇ <span>Structure</span></button><button id="fullscreen" type="button">⛶ <span>Full screen</span></button></div>
+        </section>
+
+        <aside class="detail-panel">
+          <div class="panel-scroll">
+            <p class="eyebrow">MATERIALS &amp; SITE</p>
+            <h2 id="panelTitle">A house drawn<br />by the land.</h2>
+            <p class="panel-copy" id="panelCopy">A low, circular profile follows the fall of the mountain, offering a different horizon from every room.</p>
+            <div class="stat-grid"><div><b>03</b><span>Terraces</span></div><div><b>840</b><span>m² interior</span></div><div><b>1,280</b><span>m altitude</span></div></div>
+            <p class="eyebrow select-label">VIEWPOINT</p>
+            <select id="viewSelect" aria-label="Choose a viewpoint"><option value="overview">Valley approach</option><option value="terraces">Terraced plan</option><option value="screen">Façade detail</option><option value="roof">Roof garden</option><option value="pavilion">Pavilion view</option></select>
+            <div class="layers">
+              <button data-focus="screen"><i class="dot timber"></i> Vertical timber fins</button>
+              <button data-focus="roof"><i class="dot planting"></i> Native roof planting</button>
+              <button data-focus="terraces"><i class="dot glass-dot"></i> Curved glazing</button>
+              <button data-focus="pavilion"><i class="dot stone"></i> Stone plinth &amp; paths</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <footer><span>01 / CONTOUR HOUSE</span><span>CONCEPTUAL ARCHITECTURAL STUDY · WEBGL INSPIRED</span><span>© 2026</span></footer>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
