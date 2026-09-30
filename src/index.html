@@ -78,6 +78,19 @@ select{width:100%;padding:12px;border:1px solid var(--line);background:#f5f0e8;c
 .range span{display:flex;justify-content:space-between;font:500 11px Manrope,Arial,sans-serif;color:#35433c}
 .range b{font:500 10px 'DM Mono',monospace;color:#68716a}
 .range input{width:100%;accent-color:#9b764f;margin:8px 0 0}
+.plan-bar{position:absolute;top:16px;left:50%;transform:translateX(-50%);display:none;border:1px solid var(--line);background:#eee9dfd9;z-index:4}
+.plan-mode .plan-bar{display:flex}
+.plan-bar button{padding:11px 13px;border:0;border-right:1px solid var(--line);background:none;color:var(--ink);font:600 10px Manrope,Arial,sans-serif;cursor:pointer;white-space:nowrap}
+.plan-bar button:last-child{border:0}
+.plan-bar button small{font:500 9px 'DM Mono',monospace;color:#68716a;margin-left:5px}
+.plan-bar button:hover{background:#d8e0d1}
+.plan-bar .selected{background:#d3dfca}
+.north{position:absolute;top:18px;right:18px;z-index:4;display:none;width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:#eee9dfd9;font:500 10px 'DM Mono',monospace;text-align:center;line-height:1.1;padding-top:6px}
+.plan-mode .north{display:block}
+.room-label{position:absolute;left:0;top:0;z-index:3;pointer-events:none;display:none;text-align:center;white-space:nowrap;padding:4px 8px 3px;background:#eee9dfe8;border:1px solid var(--line);font:600 11px Manrope,Arial,sans-serif;color:var(--ink)}
+.room-label small{display:block;font:500 8px 'DM Mono',monospace;letter-spacing:1px;color:#68716a;margin-top:1px}
+.room-label.out{background:none;border:0;font:italic 500 13px 'Playfair Display',Georgia,serif;color:#2f4439;text-shadow:0 0 4px #eee9df,0 0 8px #eee9df}
+.room-label.show{display:block}
 footer{height:42px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 4.2vw;color:#667069;font-size:8px}
 dialog{max-width:460px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:30px 28px;font:13px/1.7 Manrope,Arial,sans-serif}
 dialog::backdrop{background:#17231f66}
@@ -95,6 +108,13 @@ dialog button:hover{background:#d8e0d1}
 }
 @media(max-width:900px){.edition{display:none}.topbar{padding:0 25px}.experience{padding:0 25px}}
 @media(max-width:720px){
+  .plan-bar{top:10px}
+  .plan-bar button{padding:10px 9px}
+  .plan-bar button small{display:none}
+  .north{top:auto;bottom:80px;right:12px}
+  .room-label{font-size:10px;padding:2px 5px}
+  .room-label small{display:none}
+  .room-label.out{font-size:11px}
   .experience{display:block}
   .intro{padding-top:34px}
   .intro h1{font-size:48px}
@@ -138,6 +158,7 @@ dialog button:hover{background:#d8e0d1}
             <button class="chapter" data-focus="pavilion"><span>05</span> Lookout pavilion</button>
             <button class="chapter" data-focus="section"><span>06</span> Section</button>
             <button class="chapter" data-focus="daylight"><span>07</span> Daylight</button>
+            <button class="chapter" data-focus="plan"><span>08</span> Plan</button>
           </nav>
         </aside>
 
@@ -147,12 +168,22 @@ dialog button:hover{background:#d8e0d1}
           <div id="canvasHost"></div>
           <div class="loading" id="loading">LOADING MODEL…</div>
           <div class="tip" id="tip"></div>
-          <p class="drag-hint"><span>↻</span> DRAG TO ORBIT &nbsp;·&nbsp; RIGHT DRAG TO PAN &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; CLICK TO INSPECT</p>
+          <div id="labels"></div>
+          <div class="plan-bar" id="planBar" aria-label="Plan level">
+            <button type="button" data-level="0">Lower<small>+0.0</small></button>
+            <button type="button" data-level="1">Middle<small>+3.4</small></button>
+            <button type="button" data-level="2">Upper<small>+6.8</small></button>
+            <button type="button" data-level="3">Pavilion<small>+10.2</small></button>
+            <button type="button" id="namesBtn" class="selected" title="Show space names">Aa<small>Names</small></button>
+          </div>
+          <div class="north" aria-hidden="true">↑<br />N</div>
+          <p class="drag-hint" id="hint"><span>↻</span> DRAG TO ORBIT &nbsp;·&nbsp; RIGHT DRAG TO PAN &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; CLICK TO INSPECT</p>
           <div class="controls">
             <button id="reset" type="button" title="Reset">↻ <span>Reset</span></button>
             <button id="explodeBtn" type="button" title="Explode by system">⇕ <span>Explode</span></button>
             <button id="sectionBtn" type="button" title="Section cut">◫ <span>Section</span></button>
             <button id="sunBtn" type="button" title="Daylight">☼ <span>Daylight</span></button>
+            <button id="planBtn" type="button" title="Floor plans">▦ <span>Plan</span></button>
             <button id="wireframe" type="button" title="Wireframe">◇ <span>Wireframe</span></button>
             <button id="fullscreen" type="button" title="Full screen">⛶ <span>Full screen</span></button>
           </div>
@@ -168,7 +199,7 @@ dialog button:hover{background:#d8e0d1}
             <div class="side">
               <p class="eyebrow select-label">VIEWPOINT</p>
               <select id="viewSelect" aria-label="Choose a viewpoint">
-                <option value="overview">Valley approach</option><option value="terraces">Terraced plan</option><option value="screen">Façade detail</option><option value="roof">Roof garden</option><option value="pavilion">Pavilion view</option><option value="section">Long section</option><option value="daylight">Oculus daylight</option>
+                <option value="overview">Valley approach</option><option value="terraces">Terraced plan</option><option value="screen">Façade detail</option><option value="roof">Roof garden</option><option value="pavilion">Pavilion view</option><option value="section">Long section</option><option value="daylight">Oculus daylight</option><option value="plan">Floor plans</option>
               </select>
               <div class="row-head"><p class="eyebrow">ANATOMY</p></div>
               <label class="range"><span>Explode by system <b id="explodeVal">0%</b></span><input type="range" id="explodeRange" min="0" max="100" value="0" /></label>
@@ -393,7 +424,7 @@ const lvlTag = L => L.name.toUpperCase() + ' · +' + L.y.toFixed(1) + ' M';
     sh.fragmentShader = 'varying float vLY;\n' + sh.fragmentShader.replace('#include <dithering_fragment>', `#include <dithering_fragment>
       float k = vLY / 0.85; float dk = abs(fract(k + 0.5) - 0.5);
       gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.5, 0.45, 0.38), (1.0 - smoothstep(0.0, max(1.4 * fwidth(k), 1e-3), dk)) * 0.45);
-      ${POCHE}`);
+      if (!gl_FrontFacing) gl_FragColor = vec4(0.66, 0.6, 0.51, 1.0);`);
   };
   add(new THREE.Mesh(g, m), 'landform', {
     name: 'Landform', copy: 'The ridge is modelled as a stack of 0.85 m contours. Each terrace is cut into the slope at its own contour line, so the house reads as reshaped ground rather than an object placed on it.',
@@ -682,11 +713,18 @@ function applyExplode() {
     m.scale.x = m.scale.z = 1 + u.s * state.e;
   }
 }
+const planPlane = new THREE.Plane(V3(0, -1, 0), 100);
+function updateClipping() {
+  const planes = [];
+  if (state.section > 0) planes.push(clipPlane);
+  if (state.plan) planes.push(planPlane);
+  renderer.clippingPlanes = planes;
+}
 function applySection() {
   const on = state.section > 0;
   const d = lerp(13, -12, state.section / 100);
   clipPlane.constant = d;
-  renderer.clippingPlanes = on ? [clipPlane] : [];
+  updateClipping();
   sectionHelper.visible = on;
   sectionHelper.position.set(1, 3, d - 0.03);
   $('sectionVal').textContent = on ? 'z ' + d.toFixed(1) + ' m' : 'Off';
@@ -731,6 +769,7 @@ const VIEWS = {
   roof: { pos: [-20, 30, 16], target: [0, 7, -3], eyebrow: 'ROOFSCAPE', title: 'A roof made<br>for the ridge.', copy: 'Native planting carries the mountain meadow across every horizontal surface, cooling the house below.' },
   pavilion: { pos: [22, 17, 4], target: [6.8, 11, -8.4], eyebrow: 'LOOKOUT', title: 'The quiet<br>lookout.', copy: 'A raised, glass-wrapped pavilion gives the studio its own horizon above the living terraces.' },
   section: { pos: [7, 11, 42], target: [1, 4.5, 0], eyebrow: 'LONG SECTION', title: 'Cut through<br>the main hall.', copy: 'A longitudinal cut opens the terraces like a drawing. Cut surfaces read in dark moss, as in a printed section. Drag the section slider to move the plane.' },
+  plan: { eyebrow: 'FLOOR PLAN', title: '', copy: '' },
   daylight: { pos: [22, 30, 30], target: [3.5, 4.5, -0.5], eyebrow: 'DAYLIGHT', title: 'Light through<br>the oculus.', copy: 'Move the sun across the day. A shaft of light falls through the central skylight and tracks slowly over the floor of the main hall.' },
 };
 const DEFAULT_STATS = () => [['03', 'Terraces'], [Math.round(totalArea).toLocaleString('en'), 'm² interior'], ['1,280', 'm altitude']];
@@ -741,6 +780,7 @@ function setPanel(eyebrow, title, copy, stats) {
   $('stats').innerHTML = stats.map(([b, s]) => `<div><b>${b}</b><span>${s}</span></div>`).join('');
 }
 function showViewText() {
+  if (state.view === 'plan') { planPanel(); $('clearSel').classList.remove('show'); return; }
   const v = VIEWS[state.view];
   setPanel(v.eyebrow, v.title, v.copy, DEFAULT_STATS());
   $('clearSel').classList.remove('show');
@@ -769,7 +809,8 @@ controls.addEventListener('start', () => { tween = null; });
 function setView(name, fly = true) {
   const v = VIEWS[name]; if (!v) return;
   state.view = name;
-  if (fly) flyTo(v.pos, v.target);
+  if (name === 'plan') { enterPlan(); setPlanLevel(state.planLevel, fly); }
+  else { exitPlan(); if (fly) flyTo(v.pos, v.target); }
   $('viewSelect').value = name;
   document.querySelectorAll('.chapter').forEach(c => c.classList.toggle('active', c.dataset.focus === name));
   if (name === 'section' && state.section === 0) setSection(52);
@@ -777,6 +818,90 @@ function setView(name, fly = true) {
   if (name === 'screen') { visible.timber = true; applyVisibility(); }
   select(null);
 }
+// ---------- Plan mode ----------
+const PLAN_LEVELS = [
+  { name: 'Lower terrace', y: 0, x: -2.4, z: 6.5, copy: 'Living, dining and kitchen open onto the valley behind the curved glass. Guests cross the bridge into the entrance hall; the spiral stair rises from the heart of the plan.' },
+  { name: 'Middle terrace', y: 3.4, x: 2.5, z: 0.5, copy: 'The main hall gathers under the central oculus, with the library and the music room at either end of the curve. The lower roof becomes a paved terrace and meadow.' },
+  { name: 'Upper terrace', y: 6.8, x: -4, z: -4, copy: 'Bedrooms sit at the quiet top of the house, sheltered by the hill. The cantilevered study hangs out over the slope to the west.' },
+  { name: 'Lookout pavilion', y: 10.2, x: 3, z: -6, copy: 'A single glass room set on the upper roof garden, with the meadow roofs of the whole house spread out below.' },
+];
+// [level, name, x, z, outdoor]
+const ROOMS = [
+  [0, 'Living room', -8.3, 5.3], [0, 'Dining', -4.2, 8.9], [0, 'Kitchen', 0.6, 5.4], [0, 'Entrance hall', 2.6, 9.4],
+  [0, 'Services & WC', -3.4, 2.4], [0, 'Stair', -1, 0.6], [0, 'Entrance bridge', 1.5, 14.6, true], [0, 'Exterior stair', 6.2, 11.6, true],
+  [1, 'Main hall', 4.1, 1.9], [1, 'Oculus above', 4.1, -0.15, true], [1, 'Library', 10.8, -1.4], [1, 'Lobby', 9.4, 3.4],
+  [1, 'Music room', -3.6, 1.6], [1, 'Services', 3.5, -3.2], [1, 'Stair', -2, -3.6], [1, 'Roof terrace', -6.2, 6.2, true], [1, 'Meadow roof', -9.5, 3.2, true],
+  [2, 'Main bedroom', -8.3, -3.4], [2, 'Bedroom', 2.2, -5.6], [2, 'Bathrooms', -4.4, -7.4], [2, 'Stair', -2, -3.2],
+  [2, 'Study', -14.3, -5], [2, 'Meadow roof', 6.5, 1.8, true], [2, 'Oculus', 4.1, -0.15, true],
+  [3, 'Lookout studio', 6.8, -8.4], [3, 'Upper roof garden', -6.2, -4, true], [3, 'Meadow roof', 7, 2, true],
+];
+const labelEls = ROOMS.map(([lv, name, x, z, out]) => {
+  const el = document.createElement('div');
+  el.className = 'room-label' + (out ? ' out' : '');
+  el.innerHTML = out ? name : `${name}<small>${PLAN_LEVELS[lv].name.toUpperCase()}</small>`;
+  $('labels').appendChild(el);
+  return { el, lv, p: V3(x, PLAN_LEVELS[lv].y + (out ? 0.1 : 0.5), z) };
+});
+const ORBIT_BUTTONS = { ...controls.mouseButtons }, ORBIT_TOUCHES = { ...controls.touches };
+const HINT = $('hint').innerHTML;
+state.plan = false; state.planLevel = 0; state.names = true;
+
+function setPlanLevel(i, fly = true) {
+  const L = PLAN_LEVELS[i];
+  state.planLevel = i;
+  planPlane.constant = L.y + 1.6;
+  document.querySelectorAll('#planBar [data-level]').forEach(b => b.classList.toggle('selected', +b.dataset.level === i));
+  const D = camera.aspect < 1 ? 95 : 125;
+  if (fly) flyTo([L.x, L.y + D, L.z + 0.01], [L.x, L.y, L.z]);
+  if (!state.selected) showViewText();
+}
+function planPanel() {
+  const L = PLAN_LEVELS[state.planLevel], rooms = ROOMS.filter(r => r[0] === state.planLevel && !r[4]).length;
+  const area = state.planLevel < 3 ? areas[state.planLevel] : PV.w * PV.d;
+  setPanel('FLOOR PLAN · ' + L.name.toUpperCase(), L.name + '<br>in plan.', L.copy, [[String(rooms).padStart(2, '0'), 'spaces'], [Math.round(area), 'm² floor'], ['+' + L.y.toFixed(1), 'm level']]);
+}
+function enterPlan() {
+  if (state.plan) return;
+  state.plan = true;
+  stage.classList.add('plan-mode');
+  $('planBtn').classList.add('selected');
+  setExplode(0); setSection(0);
+  state.e = 0; applyExplode();
+  controls.enableRotate = false;
+  controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+  controls.maxDistance = 320; controls.minDistance = 20;
+  $('hint').innerHTML = '<span>✥</span> DRAG TO PAN &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; CLICK TO INSPECT';
+  updateClipping(); resize();
+}
+function exitPlan() {
+  if (!state.plan) return;
+  state.plan = false;
+  stage.classList.remove('plan-mode');
+  $('planBtn').classList.remove('selected');
+  controls.enableRotate = true;
+  controls.mouseButtons = { ...ORBIT_BUTTONS }; controls.touches = { ...ORBIT_TOUCHES };
+  controls.maxDistance = 120; controls.minDistance = 8;
+  $('hint').innerHTML = HINT;
+  labelEls.forEach(l => l.el.classList.remove('show'));
+  updateClipping(); resize();
+}
+const proj = new THREE.Vector3();
+function updateLabels() {
+  if (!state.plan) return;
+  const w = host.clientWidth, h = host.clientHeight;
+  for (const l of labelEls) {
+    const on = state.names && l.lv === state.planLevel;
+    l.el.classList.toggle('show', on);
+    if (!on) continue;
+    proj.copy(l.p).project(camera);
+    l.el.style.transform = `translate(${((proj.x + 1) / 2 * w).toFixed(1)}px, ${((1 - proj.y) / 2 * h).toFixed(1)}px) translate(-50%, -50%)`;
+  }
+}
+document.querySelectorAll('#planBar [data-level]').forEach(b => b.addEventListener('click', () => { select(null); setPlanLevel(+b.dataset.level); }));
+$('namesBtn').addEventListener('click', e => { state.names = !state.names; e.currentTarget.classList.toggle('selected', state.names); });
+$('planBtn').addEventListener('click', () => setView(state.plan ? 'overview' : 'plan'));
+
 function setSection(v) { state.section = v; $('sectionRange').value = v; applySection(); }
 function setHour(h) { state.hour = h; $('sunRange').value = h; applySun(); }
 function setExplode(v) { state.eTarget = v / 100; $('explodeRange').value = v; $('explodeVal').textContent = v + '%'; $('explodeBtn').classList.toggle('selected', v > 0); }
@@ -818,7 +943,7 @@ function pick(ev) {
   ndc.set((ev.clientX - r.left) / r.width * 2 - 1, -(ev.clientY - r.top) / r.height * 2 + 1);
   ray.setFromCamera(ndc, camera);
   const cut = state.section > 0 ? clipPlane.constant : Infinity;
-  const hit = ray.intersectObjects(parts, false).find(h => h.object.visible && h.point.z <= cut + 0.01);
+  const hit = ray.intersectObjects(parts, false).find(h => h.object.visible && h.point.z <= cut + 0.01 && (!state.plan || h.point.y <= planPlane.constant + 0.01));
   return hit ? hit.object : null;
 }
 let down = null, hoverEv = null, hoverDirty = false;
@@ -846,7 +971,8 @@ function resize() {
   if (!w || !h) return;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
-  camera.fov = camera.aspect < 1.2 ? 32 * Math.min(1.9, 1.2 / camera.aspect) : 32;
+  const base = state.plan ? 14 : 32;
+  camera.fov = camera.aspect < 1.2 ? base * Math.min(1.9, 1.2 / camera.aspect) : base;
   camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(host);
@@ -854,9 +980,9 @@ resize();
 
 const clock = new THREE.Clock();
 function frame() {
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
   if (tween) {
-    tween.t += dt / tween.dur;
+    tween.t += Math.min(raw, 0.25) / tween.dur;
     const k = tween.t >= 1 ? 1 : (tween.t < 0.5 ? 4 * tween.t ** 3 : 1 - (-2 * tween.t + 2) ** 3 / 2);
     camera.position.lerpVectors(tween.p0, tween.p1, k);
     controls.target.lerpVectors(tween.t0, tween.t1, k);
@@ -868,6 +994,7 @@ function frame() {
     if (state.daylight) applySun();
   }
   controls.update();
+  updateLabels();
   if (hoverDirty) { hoverDirty = false; updateHover(); }
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
