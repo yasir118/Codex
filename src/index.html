@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contour House · Architectural Anatomy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+    <style>
+:root{--ink:#17231f;--paper:#eee9df;--linen:#e2dbcf;--green:#71866a;--moss:#3c5547;--wood:#b7875b;--glass:#9fb7b2;--line:rgba(23,35,31,.18)}
+*{box-sizing:border-box}
+body{margin:0;background:#d9d2c7;color:var(--ink);font-family:Manrope,Arial,sans-serif}
+.site-shell{width:min(1920px,100%);min-height:100vh;margin:auto;background:var(--paper);overflow:hidden}
+.topbar{height:88px;display:flex;align-items:center;border-bottom:1px solid var(--line);padding:0 4.2vw;gap:23px}
+.brand{font-size:11px;letter-spacing:2px;font-weight:700;text-decoration:none;color:inherit;display:flex;align-items:center;gap:11px}
+.brand-mark{width:19px;height:19px;border:2px solid var(--ink);border-radius:50%;display:inline-block;position:relative}
+.brand-mark:after{content:"";position:absolute;width:13px;height:2px;background:var(--paper);transform:rotate(-43deg);left:2px;top:7px}
+.edition,.sources,.eyebrow,footer{font:500 10px 'DM Mono',monospace;letter-spacing:1.4px}
+.edition{color:#657069}
+.sources{margin-left:auto;border:0;background:none;color:var(--ink);font:600 11px Manrope,Arial,sans-serif;cursor:pointer}
+.sources span{margin-left:11px}
+.experience{height:calc(100vh - 130px);min-height:720px;display:grid;grid-template-columns:minmax(245px,20%) 1fr minmax(275px,22%);padding:0 4.2vw;position:relative}
+.intro{padding-top:64px;z-index:5}
+.eyebrow{color:#68716a;margin:0 0 18px}
+.intro h1{font-size:clamp(44px,4.4vw,76px);font-weight:500;letter-spacing:-4px;line-height:.94;margin:0 0 23px}
+.intro h1 em{font-family:'Playfair Display',serif;font-weight:500}
+.lede{font-size:13px;line-height:1.7;max-width:270px;color:#536058}
+.chapters{display:grid;gap:4px;margin-top:34px}
+.chapter{padding:9px 0;border:0;background:none;text-align:left;font:600 12px Manrope,Arial,sans-serif;color:#677069;cursor:pointer;transition:.2s}
+.chapter span{font:10px 'DM Mono',monospace;margin-right:17px;color:#8a908a}
+.chapter.active,.chapter:hover{color:var(--ink)}
+.chapter.active:after{content:'';width:14px;height:1px;background:#9b764f;float:right;margin:8px 25px 0 0}
+.model-stage{position:relative;min-width:0;overflow:hidden}
+.model-stage:fullscreen{background:var(--paper)}
+.ambient{position:absolute;border-radius:50%;filter:blur(4px)}
+.ambient-one{width:570px;height:570px;background:#cdd6c3;opacity:.55;top:6%;left:6%}
+.ambient-two{width:420px;height:420px;background:#d4b995;opacity:.38;bottom:3%;right:2%}
+.mountains{position:absolute;inset:0;opacity:.18;background:linear-gradient(180deg,transparent 45%,#95a18f 46%,transparent 74%)}
+.mountains i{position:absolute;bottom:0;width:0;height:0;border-left:230px solid transparent;border-right:230px solid transparent;border-bottom:300px solid #a7b2a3}
+.mountains i:nth-child(1){left:-180px}.mountains i:nth-child(2){left:25%;border-bottom-width:380px}.mountains i:nth-child(3){left:55%;border-bottom-width:270px}.mountains i:nth-child(4){right:-190px;border-bottom-width:420px}
+#canvasHost{position:absolute;inset:0;z-index:2;touch-action:none}
+#canvasHost canvas{display:block;width:100%;height:100%;outline:none}
+.loading{position:absolute;inset:0;display:grid;place-items:center;z-index:3;font:500 10px 'DM Mono',monospace;letter-spacing:1.4px;color:#68716a;text-align:center;padding:24px;pointer-events:none}
+.tip{position:absolute;z-index:6;pointer-events:none;padding:7px 10px;background:#eee9dfee;border:1px solid var(--line);font:500 9px 'DM Mono',monospace;letter-spacing:1px;white-space:nowrap;opacity:0;transform:translate(14px,14px);transition:opacity .15s}
+.tip b{display:block;font:600 11px Manrope,Arial,sans-serif;letter-spacing:0;margin-bottom:2px}
+.controls{position:absolute;display:flex;left:50%;bottom:40px;transform:translateX(-50%);border:1px solid var(--line);background:#eee9dfd9;z-index:4}
+.controls button{padding:14px 15px;border:0;border-right:1px solid var(--line);background:none;color:var(--ink);font:600 10px Manrope,Arial,sans-serif;cursor:pointer;white-space:nowrap}
+.controls button:last-child{border:0}
+.controls button:hover{background:#d8e0d1}
+.controls .selected{background:#d3dfca}
+.drag-hint{position:absolute;bottom:6px;background:#eee9dfd9;padding:3px 8px;left:50%;transform:translateX(-50%);font:9px 'DM Mono',monospace;letter-spacing:1px;color:#6c746d;white-space:nowrap;z-index:4;margin:0 0 8px}
+.drag-hint span{font-size:16px;vertical-align:middle}
+.detail-panel{padding-top:40px;z-index:5}
+.panel-scroll{border:1px solid var(--line);background:#e9e4dadd;padding:26px 24px;max-height:calc(100vh - 220px);min-height:0;overflow:auto}
+.panel-scroll h2{font-size:29px;font-weight:500;letter-spacing:-1.7px;line-height:1.12;margin:0 0 16px}
+.panel-copy{font-size:12px;line-height:1.65;color:#59635c;margin:0 0 18px}
+.back{display:none;border:0;background:none;padding:0;margin:0 0 18px;font:600 11px Manrope,Arial,sans-serif;color:#98714f;cursor:pointer}
+.back.show{display:inline-block}
+.stat-grid{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:17px 0;display:flex;gap:17px;margin-bottom:25px}
+.stat-grid div{min-width:0}
+.stat-grid b{display:block;font:500 18px 'DM Mono',monospace;white-space:nowrap}
+.stat-grid span{font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:#657069}
+.select-label{margin-bottom:8px}
+.row-head{display:flex;justify-content:space-between;align-items:baseline;margin-top:26px}
+.row-head .eyebrow{margin-bottom:8px}
+.link{border:0;background:none;padding:0;font:500 9px 'DM Mono',monospace;letter-spacing:1px;color:#98714f;cursor:pointer}
+select{width:100%;padding:12px;border:1px solid var(--line);background:#f5f0e8;color:var(--ink);font:600 11px Manrope,Arial,sans-serif}
+.layer{display:flex;border-bottom:1px solid var(--line)}
+.layer .toggle{flex:1;text-align:left;padding:11px 4px;border:0;background:none;color:#35433c;font:500 11px Manrope,Arial,sans-serif;cursor:pointer}
+.layer .toggle:hover{color:#98714f}
+.layer.off .toggle{color:#9aa19b}
+.layer.off .dot{background:transparent!important;box-shadow:inset 0 0 0 1px #9aa19b}
+.layer .solo{border:0;background:none;font:500 9px 'DM Mono',monospace;letter-spacing:1px;color:#8a908a;cursor:pointer;padding:0 4px}
+.layer .solo:hover{color:#98714f}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:9px}
+.range{display:block;padding:10px 0 6px;border-bottom:1px solid var(--line)}
+.range span{display:flex;justify-content:space-between;font:500 11px Manrope,Arial,sans-serif;color:#35433c}
+.range b{font:500 10px 'DM Mono',monospace;color:#68716a}
+.range input{width:100%;accent-color:#9b764f;margin:8px 0 0}
+footer{height:42px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 4.2vw;color:#667069;font-size:8px}
+dialog{max-width:460px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:30px 28px;font:13px/1.7 Manrope,Arial,sans-serif}
+dialog::backdrop{background:#17231f66}
+dialog h2{font-size:26px;font-weight:500;letter-spacing:-1.2px;margin:0 0 14px}
+dialog ul{padding-left:18px;color:#536058}
+dialog button{margin-top:10px;padding:11px 16px;border:1px solid var(--line);background:none;font:600 11px Manrope,Arial,sans-serif;cursor:pointer}
+dialog button:hover{background:#d8e0d1}
+@media(max-width:1180px){
+  .experience{grid-template-columns:220px 1fr;height:auto}
+  .model-stage{height:calc(100vh - 130px);min-height:640px}
+  .detail-panel{grid-column:1/-1;padding:24px 0 36px}
+  .panel-scroll{max-height:none;display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
+  .panel-scroll>*{grid-column:1}
+  .panel-scroll .side{grid-column:2;grid-row:1/span 20}
+}
+@media(max-width:900px){.edition{display:none}.topbar{padding:0 25px}.experience{padding:0 25px}}
+@media(max-width:720px){
+  .experience{display:block}
+  .intro{padding-top:34px}
+  .intro h1{font-size:48px}
+  .chapters{display:flex;overflow-x:auto;gap:18px;margin-top:22px;padding-bottom:6px}
+  .chapter{white-space:nowrap}
+  .chapter span{margin-right:6px}
+  .chapter.active:after{display:none}
+  .chapter.active{box-shadow:inset 0 -1px #9b764f}
+  .model-stage{height:68vh;min-height:440px;margin-top:14px}
+  .controls{bottom:22px}
+  .controls button{padding:13px 12px}
+  .controls button span{display:none}
+  .drag-hint{display:none}
+  .panel-scroll{display:block}
+  .sources{font-size:10px}
+  footer span:nth-child(2){display:none}
+}
+    </style>
+    <script type="importmap">
+      {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
+    </script>
+  </head>
+  <body>
+    <main class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Contour House home"><span class="brand-mark"></span><span>CONTOUR HOUSE</span></a>
+        <span class="edition">ALPINE RESIDENCE · STUDY 001 · ARCHITECTURAL ANATOMY</span>
+        <button class="sources" type="button">Project notes <span>↗</span></button>
+      </header>
+
+      <section class="experience" id="top">
+        <aside class="intro">
+          <p class="eyebrow">RIDGE LINE / 46° 34' N</p>
+          <h1>House in<br /><em>the contour.</em></h1>
+          <p class="lede">An interactive anatomy of three cascading terraces and a quiet pavilion cut into an alpine ridge. Orbit it, take it apart, cut through it and follow the light.</p>
+          <nav class="chapters" aria-label="Model chapters">
+            <button class="chapter active" data-focus="overview"><span>01</span> Explore</button>
+            <button class="chapter" data-focus="terraces"><span>02</span> Living terraces</button>
+            <button class="chapter" data-focus="screen"><span>03</span> Timber screen</button>
+            <button class="chapter" data-focus="roof"><span>04</span> Living roof</button>
+            <button class="chapter" data-focus="pavilion"><span>05</span> Lookout pavilion</button>
+            <button class="chapter" data-focus="section"><span>06</span> Section</button>
+            <button class="chapter" data-focus="daylight"><span>07</span> Daylight</button>
+          </nav>
+        </aside>
+
+        <section class="model-stage" id="stage" aria-label="Interactive three dimensional model of Contour House">
+          <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+          <div class="mountains" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div id="canvasHost"></div>
+          <div class="loading" id="loading">LOADING MODEL…</div>
+          <div class="tip" id="tip"></div>
+          <p class="drag-hint"><span>↻</span> DRAG TO ORBIT &nbsp;·&nbsp; RIGHT DRAG TO PAN &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; CLICK TO INSPECT</p>
+          <div class="controls">
+            <button id="reset" type="button" title="Reset">↻ <span>Reset</span></button>
+            <button id="explodeBtn" type="button" title="Explode by system">⇕ <span>Explode</span></button>
+            <button id="sectionBtn" type="button" title="Section cut">◫ <span>Section</span></button>
+            <button id="sunBtn" type="button" title="Daylight">☼ <span>Daylight</span></button>
+            <button id="wireframe" type="button" title="Wireframe">◇ <span>Wireframe</span></button>
+            <button id="fullscreen" type="button" title="Full screen">⛶ <span>Full screen</span></button>
+          </div>
+        </section>
+
+        <aside class="detail-panel">
+          <div class="panel-scroll">
+            <p class="eyebrow" id="panelEyebrow">MATERIALS &amp; SITE</p>
+            <h2 id="panelTitle">A house drawn<br />by the land.</h2>
+            <p class="panel-copy" id="panelCopy">A low, circular profile follows the fall of the mountain, offering a different horizon from every room.</p>
+            <button class="back" id="clearSel" type="button">← Back to viewpoint</button>
+            <div class="stat-grid" id="stats"></div>
+            <div class="side">
+              <p class="eyebrow select-label">VIEWPOINT</p>
+              <select id="viewSelect" aria-label="Choose a viewpoint">
+                <option value="overview">Valley approach</option><option value="terraces">Terraced plan</option><option value="screen">Façade detail</option><option value="roof">Roof garden</option><option value="pavilion">Pavilion view</option><option value="section">Long section</option><option value="daylight">Oculus daylight</option>
+              </select>
+              <div class="row-head"><p class="eyebrow">ANATOMY</p></div>
+              <label class="range"><span>Explode by system <b id="explodeVal">0%</b></span><input type="range" id="explodeRange" min="0" max="100" value="0" /></label>
+              <label class="range"><span>Long section <b id="sectionVal">Off</b></span><input type="range" id="sectionRange" min="0" max="100" value="0" /></label>
+              <label class="range"><span>Sun position <b id="sunVal">15:30</b></span><input type="range" id="sunRange" min="6" max="20" step="0.25" value="15.5" /></label>
+              <div class="row-head"><p class="eyebrow">SYSTEMS</p><button class="link" id="showAll" type="button">SHOW ALL</button></div>
+              <div id="layers"></div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <footer><span>01 / CONTOUR HOUSE</span><span>CONCEPTUAL ARCHITECTURAL STUDY · INTERACTIVE ANATOMY IN WEBGL</span><span>© 2026</span></footer>
+    </main>
+
+    <dialog id="notes" aria-labelledby="notesTitle">
+      <p class="eyebrow">PROJECT NOTES</p>
+      <h2 id="notesTitle">About this study</h2>
+      <p>Contour House is a conceptual residence on an alpine ridge at 1,280 m. Three curved terraces are cut into the slope, each one's roof becoming the garden of the level above, with a glass lookout pavilion at the top.</p>
+      <ul>
+        <li>Explode the house by system, or show and isolate each layer</li>
+        <li>Cut a long section through the main hall</li>
+        <li>Move the sun and follow the light through the central oculus</li>
+        <li>Click any part of the model to learn its role</li>
+      </ul>
+      <p>The model is an abstract reconstruction for explaining ideas, not a measured survey.</p>
+      <button type="button">Close</button>
+    </dialog>
+
+    <script>
+      const notes = document.getElementById('notes');
+      document.querySelector('.sources').addEventListener('click', () => notes.showModal());
+      notes.querySelector('button').addEventListener('click', () => notes.close());
+      notes.addEventListener('click', e => { if (e.target === notes) notes.close(); });
+      setTimeout(() => { if (!window.__contourReady) document.getElementById('loading').textContent = 'THE 3D MODEL COULD NOT LOAD. CHECK YOUR CONNECTION AND REFRESH.'; }, 12000);
+    </script>
+
+    <script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const $ = id => document.getElementById(id);
+const { clamp, lerp } = THREE.MathUtils;
+const smooth = t => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
+const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+
+// ---------- Renderer, camera, lights ----------
+const stage = $('stage'), host = $('canvasHost');
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
+catch (err) { $('loading').textContent = 'THIS BROWSER CANNOT DISPLAY WEBGL.'; throw err; }
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x000000, 0);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+host.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, 0.5, 400);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = 1.48;
+controls.minDistance = 8;
+controls.maxDistance = 120;
+
+scene.add(new THREE.HemisphereLight(0xf6f1e6, 0xa4977f, 2.1));
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.6);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 5, far: 120 });
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.03;
+sun.target.position.set(1, 3, -1);
+scene.add(sun, sun.target);
+
+const clipPlane = new THREE.Plane(V3(0, 0, -1), 100);
+
+// ---------- Materials ----------
+const POCHE = 'if (!gl_FrontFacing) gl_FragColor = vec4(0.16, 0.24, 0.2, 1.0);';
+function mat(color, opts = {}) {
+  const m = new THREE.MeshStandardMaterial({ color, roughness: 0.88, metalness: 0, ...opts });
+  if (!opts.transparent) {
+    m.side = THREE.DoubleSide;
+    m.shadowSide = THREE.BackSide;
+    // Cut faces read as dark moss poché when the section plane opens a solid.
+    m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <dithering_fragment>', '#include <dithering_fragment>\n' + POCHE); };
+  }
+  return m;
+}
+const glassMat = () => mat('#9fb7b2', { transparent: true, opacity: 0.34, roughness: 0.1, depthWrite: false, side: THREE.DoubleSide });
+
+// ---------- Site data ----------
+const LEVELS = [
+  { name: 'Lower terrace', use: 'Living & kitchen', cx: -3.4, cz: 5.5, rx: 9.6, rz: 5.5, y: 0, seed: 0.3 },
+  { name: 'Middle terrace', use: 'Main hall', cx: 3.5, cz: -0.15, rx: 10.5, rz: 5.75, y: 3.4, seed: 1.7, sky: { x: 0.6, z: 0, r: 1.7 } },
+  { name: 'Upper terrace', use: 'Bedrooms & study', cx: -4.4, cz: -5, rx: 8.5, rz: 4.9, y: 6.8, seed: 2.9 },
+];
+const PV = { x: 6.8, z: -8.4, w: 7.6, d: 5.4, y: 10.2 };
+const TERR = { x: -6.2, z: 6.2, r: 3 };
+const LEVEL_DY = 2.6, BASE = -4.6, P = 2.4;
+
+function rho(L, x, z) { return Math.pow(Math.pow(Math.abs((x - L.cx) / L.rx), P) + Math.pow(Math.abs((z - L.cz) / L.rz), P), 1 / P); }
+function hRaw(x, z) { return clamp(1 - 0.55 * (z + 1.3 * Math.sin(x * 0.21 + 0.4)) + 0.5 * Math.sin(x * 0.13 + z * 0.09), BASE + 0.4, 10.6); }
+function hSite(x, z) {
+  let h = hRaw(x, z);
+  for (const L of LEVELS) {
+    const r = rho(L, x, z);
+    if (r < 1.5) h = Math.min(h, lerp(L.y - 0.02, h, smooth((r - 1.06) / 0.44)));
+  }
+  return h;
+}
+function roofBelow(x, z, y) {
+  let top = -Infinity;
+  for (const L of LEVELS) if (L.y < y - 0.1 && rho(L, x, z) < 1) top = Math.max(top, L.y + 3.4);
+  return top;
+}
+function footprint(L, s = 1, n = 160) {
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const t = i / n * Math.PI * 2, c = Math.cos(t), si = Math.sin(t);
+    const r = Math.pow(Math.pow(Math.abs(c), P) + Math.pow(Math.abs(si), P), -1 / P) * (1 + 0.03 * Math.sin(3 * t + L.seed));
+    pts.push(new THREE.Vector2(L.rx * r * c * s, L.rz * r * si * s));
+  }
+  return pts;
+}
+function polyArea(pts) { let a = 0; pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length]; a += p.x * q.y - q.x * p.y; }); return Math.abs(a / 2); }
+
+// ---------- Geometry helpers ----------
+function extrude(pts, depth, holes = []) {
+  const shape = new THREE.Shape(pts.map(p => new THREE.Vector2(p.x, -p.y)));
+  holes.forEach(h => { const path = new THREE.Path(); path.absarc(h.x, -h.z, h.r, 0, Math.PI * 2, true); shape.holes.push(path); });
+  const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: false, curveSegments: 32 });
+  g.rotateX(-Math.PI / 2);
+  return g;
+}
+function wallGeo(pts, pred, bottom, top) {
+  const pos = [];
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    const dx = b.x - a.x, dz = b.y - a.y, len = Math.hypot(dx, dz);
+    if (pred && !pred(dz / len, -dx / len)) continue;
+    const at = top(a), bt = top(b), ab = Math.min(bottom(a), at), bb = Math.min(bottom(b), bt);
+    if (at - ab < 0.01 && bt - bb < 0.01) continue;
+    const A = [a.x, ab, a.y], B = [b.x, bb, b.y], C = [b.x, bt, b.y], D = [a.x, at, a.y];
+    pos.push(...A, ...D, ...B, ...B, ...D, ...C);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
+}
+function along(pts, spacing, pred) {
+  const out = [];
+  let acc = spacing / 2;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    const dx = b.x - a.x, dz = b.y - a.y, len = Math.hypot(dx, dz), nx = dz / len, nz = -dx / len;
+    let t = acc;
+    while (t < len) { if (!pred || pred(nx, nz)) out.push({ x: a.x + dx * t / len, z: a.y + dz * t / len, nx, nz, ang: Math.atan2(nx, nz) }); t += spacing; }
+    acc = t - len;
+  }
+  return out;
+}
+const dummy = new THREE.Object3D();
+function inst(geo, material, list, fn) {
+  const m = new THREE.InstancedMesh(geo, material, list.length);
+  list.forEach((it, i) => {
+    dummy.position.set(0, 0, 0); dummy.rotation.set(0, 0, 0); dummy.scale.set(1, 1, 1);
+    fn(dummy, it, i); dummy.updateMatrix(); m.setMatrixAt(i, dummy.matrix);
+  });
+  m.instanceMatrix.needsUpdate = true;
+  m.computeBoundingSphere();
+  return m;
+}
+
+// ---------- Systems and parts ----------
+const SYSTEMS = {
+  structure: { label: 'Stone plinth & structure', color: '#b6aa99' },
+  timber: { label: 'Vertical timber fins', color: '#aa7956' },
+  glazing: { label: 'Curved glazing', color: '#86aaa4' },
+  planting: { label: 'Native roof planting', color: '#66805d' },
+  circulation: { label: 'Circulation & paths', color: '#6f8490' },
+  interior: { label: 'Interior', color: '#d8d0c2' },
+  landform: { label: 'Landform', color: '#c9bca9' },
+};
+const visible = Object.fromEntries(Object.keys(SYSTEMS).map(k => [k, true]));
+const parts = [];
+function add(mesh, sys, info, x, y, z, ex = {}) {
+  mesh.position.set(x, y, z);
+  mesh.userData = { sys, info, base: mesh.position.clone(), dy: ex.dy || 0, s: ex.s || 0 };
+  if (!mesh.material.transparent) mesh.castShadow = mesh.receiveShadow = true;
+  scene.add(mesh);
+  parts.push(mesh);
+  return mesh;
+}
+const lvlTag = L => L.name.toUpperCase() + ' · +' + L.y.toFixed(1) + ' M';
+
+// ---------- Landform ----------
+{
+  const R = t => 21.5 * (1 + 0.06 * Math.sin(3 * t + 0.7) + 0.04 * Math.sin(5 * t + 2.1));
+  const RINGS = 72, SEG = 200, pos = [], idx = [];
+  for (let i = 0; i <= RINGS + 2; i++) for (let j = 0; j < SEG; j++) {
+    const t = j / SEG * Math.PI * 2, r = Math.min(i, RINGS) / RINGS * R(t);
+    const x = r * Math.cos(t), z = r * Math.sin(t);
+    pos.push(x, i === RINGS + 2 ? BASE : hSite(x, z), z);
+  }
+  for (let i = 0; i <= RINGS + 1; i++) {
+    if (i === RINGS) continue; // ring RINGS+1 duplicates the rim so the skirt shades flat
+    for (let j = 0; j < SEG; j++) {
+      const a = i * SEG + j, b = i * SEG + (j + 1) % SEG, c = (i + 1) * SEG + j, d = (i + 1) * SEG + (j + 1) % SEG;
+      idx.push(a, b, c, b, d, c);
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  const m = mat('#cdbfab');
+  m.onBeforeCompile = sh => {
+    sh.vertexShader = 'varying float vLY;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvLY = transformed.y;');
+    sh.fragmentShader = 'varying float vLY;\n' + sh.fragmentShader.replace('#include <dithering_fragment>', `#include <dithering_fragment>
+      float k = vLY / 0.85; float dk = abs(fract(k + 0.5) - 0.5);
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.5, 0.45, 0.38), (1.0 - smoothstep(0.0, max(1.4 * fwidth(k), 1e-3), dk)) * 0.45);
+      ${POCHE}`);
+  };
+  add(new THREE.Mesh(g, m), 'landform', {
+    name: 'Landform', copy: 'The ridge is modelled as a stack of 0.85 m contours. Each terrace is cut into the slope at its own contour line, so the house reads as reshaped ground rather than an object placed on it.',
+    specs: [['0.85', 'm contour'], ['15', 'm fall'], ['1,280', 'm altitude']],
+  }, 0, 0, 0, { dy: -3 });
+}
+
+// Paths that follow the contours
+[[[-12, 8], [-13.5, 10], [-14, 12.5]], [[13.8, -0.4], [16, -3.5], [16.8, -7.5]], [[1.5, 16.3], [0.2, 17.6], [-2.5, 18.4]]].forEach(ptsXZ => {
+  const curve = new THREE.CatmullRomCurve3(ptsXZ.map(([x, z]) => V3(x, 0, z)));
+  const N = 60, pos = [];
+  const pts = curve.getSpacedPoints(N);
+  for (let i = 0; i < N; i++) {
+    const quad = [i, i + 1].map(k => {
+      const p = pts[k], t = curve.getTangentAt(k / N), nx = -t.z * 0.55, nz = t.x * 0.55;
+      return [[p.x + nx, hSite(p.x + nx, p.z + nz) + 0.07, p.z + nz], [p.x - nx, hSite(p.x - nx, p.z - nz) + 0.07, p.z - nz]];
+    });
+    pos.push(...quad[0][0], ...quad[1][0], ...quad[0][1], ...quad[0][1], ...quad[1][0], ...quad[1][1]);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  add(new THREE.Mesh(g, mat('#e4dac8')), 'circulation', {
+    name: 'Contour path', copy: 'Compacted gravel paths run along the contours instead of cutting across them, arriving at each terrace on the level.',
+    specs: [['1.1', 'm wide'], ['<1:12', 'gradient'], ['Gravel', 'surface']],
+  }, 0, 0, 0, { dy: -3 });
+});
+
+// ---------- Terraces ----------
+const areas = [];
+LEVELS.forEach((L, li) => {
+  const fp = footprint(L), inner = footprint(L, 0.93), area = polyArea(inner);
+  areas.push(area);
+  const dy = li * LEVEL_DY, tag = lvlTag(L), isGlass = (nx, nz) => nz > -0.3;
+  const toW = p => [L.cx + p.x, L.cz + p.y];
+
+  add(new THREE.Mesh(extrude(fp, 0.35), mat('#d9cfbe')), 'structure', {
+    tag, name: 'Floor slab', copy: `Concrete plate for the ${L.use.toLowerCase()}. Its soft superelliptical edge follows the contour line it sits on.`,
+    specs: [[Math.round(area), 'm² floor'], ['0.35', 'm depth'], ['+' + L.y.toFixed(1), 'm level']],
+  }, L.cx, L.y, L.cz, { dy });
+
+  add(new THREE.Mesh(wallGeo(footprint(L, 0.86), null, p => { const [x, z] = toW(p); return Math.max(hSite(x, z) - 0.4, roofBelow(x, z, L.y)) - L.y; }, () => 0), mat('#b6aa99')), 'structure', {
+    tag, name: 'Recessed base', copy: 'Local gneiss laid in deep courses and set well back from the edge, so each timber oval seems to hover over the slope.',
+    specs: [['Local', 'gneiss'], ['0.6', 'm wall'], ['Dry', 'laid']],
+  }, L.cx, L.y, L.cz, { dy: dy - 0.8 });
+
+  add(new THREE.Mesh(wallGeo(inner, (nx, nz) => !isGlass(nx, nz), () => 0.35, () => 3.0), mat('#a99c89')), 'structure', {
+    tag, name: 'Retaining wall', copy: 'The uphill side of each terrace is cut into the slope. A thick earth-sheltered wall holds back the hill and stores the day’s heat.',
+    specs: [['0.8', 'm thick'], ['2.65', 'm high'], ['Earth', 'sheltered']],
+  }, L.cx, L.y, L.cz, { dy });
+
+  const glassRun = along(inner, 0.1, isGlass).length * 0.1;
+  add(new THREE.Mesh(wallGeo(inner, isGlass, () => 0.35, () => 3.0), glassMat()), 'glazing', {
+    tag, name: 'Curved glazing', copy: 'Triple-glazed curved panes wrap the downhill face, giving every room a continuous horizon across the valley.',
+    specs: [[Math.round(glassRun), 'm run'], ['2.65', 'm high'], ['3×', 'glazed']],
+  }, L.cx, L.y, L.cz, { dy, s: 0.05 });
+
+  const mulls = along(inner, 1.5, isGlass);
+  add(inst(new THREE.BoxGeometry(0.06, 2.65, 0.06), mat('#4c625d', { roughness: 0.5 }), mulls, (d, p) => d.position.set(p.x, 1.675, p.z)), 'glazing', {
+    tag, name: 'Glazing mullions', copy: 'Slim steel mullions at 1.5 m centres carry the curved panes and their wind load.',
+    specs: [[mulls.length, 'mullions'], ['1.5', 'm centres'], ['60', 'mm steel']],
+  }, L.cx, L.y, L.cz, { dy, s: 0.05 });
+
+  const fins = along(footprint(L, 1.05), 0.36);
+  add(inst(new THREE.BoxGeometry(0.08, 3.6, 0.36), mat('#a57c55', { roughness: 0.8 }), fins, (d, p) => { d.position.set(p.x, 0.3 + 1.8, p.z); d.rotation.y = p.ang; }), 'timber', {
+    tag, name: 'Timber fins', copy: 'Vertical larch fins wrap the whole oval and rise past the roof as a parapet for the garden. From oblique views they close into a solid veil; seen head on, they open to the view.',
+    specs: [[fins.length, 'fins'], ['360', 'mm pitch'], ['Larch', 'timber']],
+  }, L.cx, L.y, L.cz, { dy, s: 0.16 });
+
+  const bandPts = footprint(L, 1.075), bandGeo = [];
+  [[1.95, 2.12], [3.72, 3.9]].forEach(([b, t]) => bandGeo.push(wallGeo(bandPts, null, () => b, () => t)));
+  bandGeo.forEach(g => add(new THREE.Mesh(g, mat('#b08a63', { roughness: 0.8 })), 'timber', {
+    tag, name: 'Timber bands', copy: 'Two continuous horizontal bands tie the fins together, one at window head height and one as the parapet coping of the roof garden.',
+    specs: [['2', 'bands'], ['170', 'mm deep'], ['Larch', 'timber']],
+  }, L.cx, L.y, L.cz, { dy, s: 0.16 }));
+
+  const cols = along(footprint(L, 0.82), 4.2);
+  add(inst(new THREE.CylinderGeometry(0.11, 0.11, 2.65, 12), mat('#3c5547', { roughness: 0.6 }), cols, (d, p) => d.position.set(p.x, 1.675, p.z)), 'structure', {
+    tag, name: 'Steel columns', copy: 'Slender columns on an inner ring carry the roof and keep the façade free of structure.',
+    specs: [[cols.length, 'columns'], ['220', 'mm Ø'], ['S355', 'steel']],
+  }, L.cx, L.y, L.cz, { dy });
+
+  const holes = L.sky ? [L.sky] : [];
+  add(new THREE.Mesh(extrude(footprint(L, 1.03), 0.4, holes), mat('#b7875b', { roughness: 0.8 })), 'structure', {
+    tag, name: 'Roof plate', copy: 'A deep roof plate that cantilevers past the façade and doubles as the garden terrace for the level above.',
+    specs: [['0.3', 'm overhang'], ['0.4', 'm deep'], ['Timber', 'fascia']],
+  }, L.cx, L.y + 3.0, L.cz, { dy: dy + 1.6 });
+
+  const plantArea = polyArea(footprint(L, 0.9)) - (L.sky ? Math.PI * 2.3 * 2.3 : 0);
+  add(new THREE.Mesh(extrude(footprint(L, 0.9), 0.14, L.sky ? [{ ...L.sky, r: 2.3 }] : []), mat('#6e7f62')), 'planting', {
+    tag, name: 'Meadow roof', copy: 'A 140 mm substrate seeded with native alpine grasses and herbs carries the mountain meadow across the house and cools the rooms below.',
+    specs: [[Math.round(plantArea), 'm² green'], ['140', 'mm soil'], ['Native', 'seed mix']],
+  }, L.cx, L.y + 3.4, L.cz, { dy: dy + 3 });
+
+  // Shrubs: skip the skylight, the level above and the pavilion
+  const shrubs = [];
+  let seed = li * 97 + 11;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let k = 0; k < 900 && shrubs.length < 55; k++) {
+    const x = L.cx + (rnd() * 2 - 1) * L.rx, z = L.cz + (rnd() * 2 - 1) * L.rz;
+    if (rho(L, x, z) > 0.84) continue;
+    if (LEVELS.some(K => K.y > L.y && rho(K, x, z) < 1.05)) continue;
+    if (L.sky && Math.hypot(x - L.cx - L.sky.x, z - L.cz - L.sky.z) < 2.8) continue;
+    if (Math.hypot(x - TERR.x, z - TERR.z) < TERR.r + 0.6) continue;
+    if (Math.abs(x - PV.x) < PV.w / 2 + 0.6 && Math.abs(z - PV.z) < PV.d / 2 + 0.6) continue;
+    shrubs.push({ x: x - L.cx, z: z - L.cz, s: 0.5 + rnd() * 0.9, c: Math.floor(rnd() * 4) });
+  }
+  const shrubColors = ['#405842', '#708265', '#4d694d', '#8a9a6a'].map(c => new THREE.Color(c));
+  const shrubMesh = inst(new THREE.IcosahedronGeometry(0.34, 0), mat('#ffffff'), shrubs, (d, p) => { d.position.set(p.x, 0.2 * p.s, p.z); d.scale.set(p.s, p.s * 0.8, p.s); d.rotation.y = p.s * 7; });
+  shrubs.forEach((p, i) => shrubMesh.setColorAt(i, shrubColors[p.c]));
+  add(shrubMesh, 'planting', {
+    tag, name: 'Dwarf pine & juniper', copy: 'Low shrubs cluster where the substrate is deepest, anchoring the meadow roof and screening the terrace edges.',
+    specs: [[shrubs.length, 'shrubs'], ['<0.8', 'm high'], ['Native', 'species']],
+  }, L.cx, L.y + 3.54, L.cz, { dy: dy + 3 });
+
+  const fit = [
+    { x: 0, z: -L.rz * 0.45, w: 2.2, h: 2.65, d: 1.8, name: 'Service core' },
+    { x: L.rx * 0.35, z: L.rz * 0.2, w: 2.6, h: 0.9, d: 1.0 },
+    { x: -L.rx * 0.4, z: L.rz * 0.3, w: 3.2, h: 0.45, d: 0.9 },
+    { x: -L.rx * 0.05, z: L.rz * 0.35, w: 1.6, h: 0.75, d: 1.6 },
+  ];
+  add(inst(new THREE.BoxGeometry(1, 1, 1), mat('#ebe5da'), fit, (d, f) => { d.position.set(f.x, 0.35 + f.h / 2, f.z); d.scale.set(f.w, f.h, f.d); }), 'interior', {
+    tag, name: 'Interior fit-out', copy: `Abstract massing for the ${L.use.toLowerCase()}. A stacked service core holds wet rooms and plant, leaving the curved perimeter free for living space.`,
+    specs: [[Math.round(area), 'm² room'], ['2.65', 'm ceiling'], ['1', 'core']],
+  }, L.cx, L.y, L.cz, { dy: dy + 0.8 });
+});
+const totalArea = areas.reduce((a, b) => a + b, 0) + PV.w * PV.d;
+
+// ---------- Central oculus ----------
+const MID = LEVELS[1];
+const SKY = V3(MID.cx + MID.sky.x, MID.y + 3.4, MID.cz + MID.sky.z);
+{
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(MID.sky.r, 48).rotateX(-Math.PI / 2), glassMat());
+  add(disc, 'glazing', {
+    tag: lvlTag(MID), name: 'Central oculus', copy: 'A 3.4 m round skylight over the main hall. Through the day a disc of sun tracks slowly across the hall floor. Try the Daylight view.',
+    specs: [['3.4', 'm Ø'], ['Main', 'hall'], ['Operable', 'vent']],
+  }, SKY.x, SKY.y - 0.05, SKY.z, { dy: LEVEL_DY + 1.6 });
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(2.05, 0.14, 12, 64).rotateX(Math.PI / 2), mat('#c0ae98'));
+  add(ring, 'structure', {
+    tag: lvlTag(MID), name: 'Oculus parapet', copy: 'A low curved parapet guards the skylight and frames it as a seat on the roof terrace.',
+    specs: [['4.1', 'm Ø'], ['0.45', 'm high'], ['Cast', 'stone']],
+  }, SKY.x, SKY.y + 0.3, SKY.z, { dy: LEVEL_DY + 1.6 });
+}
+
+// ---------- Spiral stairs ----------
+function spiral(x, z, y0, from, to, dy) {
+  const n = 14, rise = 3.4, info = {
+    tag: 'CIRCULATION · +' + y0.toFixed(1) + ' M', name: 'Spiral stair', copy: `A steel spiral links the ${from} and the ${to} inside the house, climbing ${rise} m in ${n} treads.`,
+    specs: [[n, 'treads'], [rise, 'm rise'], ['2.1', 'm Ø']],
+  };
+  add(inst(new THREE.BoxGeometry(1.0, 0.07, 0.36), mat('#6f8490', { roughness: 0.6 }), [...Array(n).keys()], (d, i) => {
+    const a = i * 0.45; d.position.set(Math.cos(a) * 0.6, (i + 1) * rise / n, Math.sin(a) * 0.6); d.rotation.y = -a;
+  }), 'circulation', info, x, y0 + 0.35, z, { dy });
+  add(new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, rise, 10), mat('#4b5d67')), 'circulation', info, x, y0 + 0.35 + rise / 2, z, { dy });
+}
+spiral(-1, 1.2, 0, 'lower terrace', 'main hall', 1.3);
+spiral(-2, -3, 3.4, 'main hall', 'upper terrace', 3.9);
+
+// ---------- Lookout pavilion ----------
+{
+  const tag = 'LOOKOUT PAVILION · +' + PV.y.toFixed(1) + ' M', dy = 8.5;
+  add(new THREE.Mesh(new THREE.BoxGeometry(PV.w, 0.3, PV.d), mat('#d9cfbe')), 'structure', {
+    tag, name: 'Pavilion deck', copy: 'The deck lands on the upper roof garden at one end and bridges out over the slope on steel legs at the other.',
+    specs: [[Math.round(PV.w * PV.d), 'm² deck'], ['+10.2', 'm level'], ['Steel', 'frame']],
+  }, PV.x, PV.y + 0.15, PV.z, { dy });
+  add(new THREE.Mesh(new THREE.BoxGeometry(PV.w - 0.4, 2.6, PV.d - 0.4), glassMat()), 'glazing', {
+    tag, name: 'Glass lantern', copy: 'A frameless glass box gives the studio its own horizon above the living terraces, with views on all four sides.',
+    specs: [['4', 'sides'], ['2.6', 'm high'], ['Low-iron', 'glass']],
+  }, PV.x, PV.y + 1.6, PV.z, { dy });
+  add(new THREE.Mesh(new THREE.BoxGeometry(PV.w + 0.6, 0.3, PV.d + 0.6), mat('#b5835e', { roughness: 0.8 })), 'structure', {
+    tag, name: 'Pavilion roof', copy: 'A thin timber-clad roof plate floats over the glass, deep enough to shade it at midsummer noon.',
+    specs: [['0.3', 'm overhang'], ['0.3', 'm deep'], ['Larch', 'soffit']],
+  }, PV.x, PV.y + 3.05, PV.z, { dy: dy + 1.2 });
+  const legs = [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sz]) => {
+    const x = PV.x + sx * (PV.w / 2 - 0.3), z = PV.z + sz * (PV.d / 2 - 0.3);
+    return { x: x - PV.x, z: z - PV.z, b: Math.max(hSite(x, z), roofBelow(x, z, PV.y)) - PV.y };
+  }).filter(l => l.b < -0.1);
+  add(inst(new THREE.CylinderGeometry(0.12, 0.12, 1, 12), mat('#3c5547', { roughness: 0.6 }), legs, (d, l) => { d.position.set(l.x, l.b / 2, l.z); d.scale.y = -l.b; }), 'structure', {
+    tag, name: 'Pavilion legs', copy: 'Where the pavilion runs past the upper roof it stands on slender steel legs founded in the rock.',
+    specs: [[legs.length, 'legs'], ['240', 'mm Ø'], ['Rock', 'anchored']],
+  }, PV.x, PV.y, PV.z, { dy });
+  const rect = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => new THREE.Vector2(a * (PV.w / 2 + 0.25), b * (PV.d / 2 + 0.25)));
+  const slats = along(rect, 0.3);
+  add(inst(new THREE.BoxGeometry(0.07, 1.5, 0.3), mat('#a57c55', { roughness: 0.8 }), slats, (d, p) => { d.position.set(p.x, 2.45, p.z); d.rotation.y = p.ang; }), 'timber', {
+    tag, name: 'Pavilion screen', copy: 'A slatted timber crown wraps the top of the pavilion, shading the glass below while leaving a clear band of view at eye level.',
+    specs: [[slats.length, 'slats'], ['300', 'mm pitch'], ['Larch', 'timber']],
+  }, PV.x, PV.y, PV.z, { dy, s: 0.12 });
+  add(new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.75, 0.9), mat('#ebe5da')), 'interior', {
+    tag, name: 'Studio desk', copy: 'A single long desk faces the valley. The pavilion is the quietest room in the house.',
+    specs: [['1', 'desk'], ['360°', 'view'], ['Studio', 'use']],
+  }, PV.x + 1.2, PV.y + 0.3 + 0.375, PV.z + 1.4, { dy });
+}
+
+// ---------- Exterior stair, bridge, terrace, cantilever ----------
+function posts(list, dy, info) {
+  add(inst(new THREE.CylinderGeometry(0.08, 0.08, 1, 8), mat('#3c5547', { roughness: 0.6 }), list, (d, p) => { d.position.set(p.x, (p.top + p.bot) / 2, p.z); d.scale.y = p.top - p.bot; }), 'structure', info, 0, 0, 0, { dy });
+}
+{
+  const info = {
+    tag: 'CIRCULATION · ENTRANCE', name: 'Entrance bridge', copy: 'A timber bridge reaches out from the lower terrace over the falling ground, where the contour path arrives at the house.',
+    specs: [['5', 'm span'], ['1.8', 'm wide'], ['+0.0', 'm level']],
+  };
+  add(new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.22, 5.4), mat('#d6cab5')), 'circulation', info, 1.5, -0.11, 13.4, { dy: 0.6 });
+  posts([[0.8, 12.2], [2.2, 12.2], [0.8, 15.8], [2.2, 15.8]].map(([x, z]) => ({ x, z, top: -0.22, bot: hSite(x, z) - 0.3 })), 0.6, { ...info, name: 'Bridge posts', copy: 'Steel posts carry the bridge down to the rock.' });
+
+  const a = V3(2.9, 0, 13.4), b = V3(8.8, 3.4, 8.8), n = 20, dir = b.clone().sub(a), ang = Math.atan2(dir.x, dir.z);
+  const sInfo = {
+    tag: 'CIRCULATION · EXTERIOR', name: 'Exterior stair', copy: 'An open stair climbs along the outside of the lower oval from the entrance bridge to the terrace of the main hall.',
+    specs: [[n, 'steps'], ['3.4', 'm rise'], ['1.2', 'm wide']],
+  };
+  add(inst(new THREE.BoxGeometry(1.2, 0.08, 0.42), mat('#d6cab5'), [...Array(n).keys()], (d, i) => {
+    const t = (i + 0.5) / n; d.position.set(a.x + dir.x * t, a.y + dir.y * t, a.z + dir.z * t); d.rotation.y = ang;
+  }), 'circulation', sInfo, 0, 0, 0, { dy: 1.3 });
+  add(new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.2, 3.6), mat('#d6cab5')), 'circulation', { ...sInfo, name: 'Stair landing', copy: 'The landing at the head of the stair walks straight into the main hall.' }, 8.8, 3.3, 7.1, { dy: 1.3 });
+  posts([0.33, 0.66, 1].map(t => { const x = a.x + dir.x * t, z = a.z + dir.z * t; return { x, z, top: a.y + dir.y * t - 0.1, bot: hSite(x, z) - 0.3 }; }), 1.3, { ...sInfo, name: 'Stair posts', copy: 'Slim posts carry the stair stringers down to the slope.' });
+
+  const tInfo = {
+    tag: 'LOWER TERRACE · ROOF', name: 'Paved roof terrace', copy: 'A round paved terrace on the lower roof, edged in glass, where the meadow opens up for outdoor living.',
+    specs: [['6', 'm Ø'], ['1.0', 'm balustrade'], ['Stone', 'paving']],
+  };
+  add(new THREE.Mesh(new THREE.CylinderGeometry(TERR.r, TERR.r, 0.16, 48), mat('#ddd3c2')), 'circulation', tInfo, TERR.x, 3.48, TERR.z, { dy: 3 });
+  add(new THREE.Mesh(new THREE.CylinderGeometry(TERR.r, TERR.r, 1, 48, 1, true, -0.6, 3.6), glassMat()), 'glazing', { ...tInfo, name: 'Glass balustrade', copy: 'Frameless glass guards the terrace edge without interrupting the view down the valley.' }, TERR.x, 4.06, TERR.z, { dy: 3 });
+
+  const U = LEVELS[2], cInfo = {
+    tag: lvlTag(U), name: 'Cantilevered study', copy: 'A small timber box slides out of the end of the upper oval and hangs over the slope, framing a single view to the west.',
+    specs: [['3.2', 'm cantilever'], ['9', 'm² room'], ['1', 'window']],
+  };
+  add(new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.9, 3.0), mat('#a57c55', { roughness: 0.8 })), 'structure', cInfo, U.cx - U.rx - 1.1, U.y + 0.35 + 1.45, U.cz, { dy: 2 * LEVEL_DY });
+  add(new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.4).rotateY(-Math.PI / 2), glassMat()), 'glazing', { ...cInfo, name: 'Study window' }, U.cx - U.rx - 2.82, U.y + 0.35 + 1.45, U.cz, { dy: 2 * LEVEL_DY });
+}
+
+// ---------- Pines and rocks ----------
+{
+  let seed = 4242;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const clear = (x, z, m) => LEVELS.every(L => rho(L, x, z) > m) && Math.hypot(x - PV.x, z - PV.z) > 6 && Math.hypot(x, z) < 18.5 && Math.hypot(x - 5.5, z - 11) > 3.5;
+  const pines = [], rocks = [];
+  for (let k = 0; k < 3000 && (pines.length < 26 || rocks.length < 60); k++) {
+    const x = (rnd() * 2 - 1) * 19, z = (rnd() * 2 - 1) * 19;
+    if (!clear(x, z, 1.35)) continue;
+    const y = hSite(x, z), s = 0.7 + rnd() * 0.7;
+    if (pines.length < 26 && rnd() < 0.4) pines.push({ x, y, z, s }); else if (rocks.length < 60) rocks.push({ x, y, z, s, r: rnd() * 6 });
+  }
+  const pInfo = {
+    name: 'Mountain pines', copy: 'Existing pines are kept between the terraces. The house is sited in the gaps between them rather than clearing the slope.',
+    specs: [[pines.length, 'pines kept'], ['6 to 12', 'm tall'], ['Pinus', 'mugo']],
+  };
+  add(inst(new THREE.ConeGeometry(1.1, 3.4, 7), mat('#4d694d'), pines, (d, p) => { d.position.set(p.x, p.y + 2.4 * p.s, p.z); d.scale.setScalar(p.s); }), 'landform', pInfo, 0, 0, 0, { dy: -3 });
+  add(inst(new THREE.CylinderGeometry(0.12, 0.16, 1, 6), mat('#6b5641'), pines, (d, p) => { d.position.set(p.x, p.y + 0.4 * p.s, p.z); d.scale.set(p.s, p.s, p.s); }), 'landform', pInfo, 0, 0, 0, { dy: -3 });
+  add(inst(new THREE.DodecahedronGeometry(0.45, 0), mat('#d8d1c4'), rocks, (d, p) => { d.position.set(p.x, p.y + 0.1, p.z); d.scale.set(p.s, p.s * 0.6, p.s * 0.9); d.rotation.set(p.r, p.r * 2, 0); }), 'landform', {
+    name: 'Limestone outcrops', copy: 'Boulders from the excavation are placed back on the slope, anchoring the paths and the planting.',
+    specs: [[rocks.length, 'boulders'], ['Local', 'limestone'], ['Reused', 'on site']],
+  }, 0, 0, 0, { dy: -3 });
+}
+
+// ---------- Section and daylight helpers ----------
+const sectionHelper = new THREE.Group();
+sectionHelper.add(new THREE.Mesh(new THREE.PlaneGeometry(52, 30), new THREE.MeshBasicMaterial({ color: 0xb7875b, transparent: true, opacity: 0.07, side: THREE.DoubleSide, depthWrite: false })));
+sectionHelper.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(52, 30)), new THREE.LineBasicMaterial({ color: 0x9b764f })));
+sectionHelper.visible = false;
+scene.add(sectionHelper);
+
+const SUN_C = V3(1, 0, -1);
+const sunArc = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineDashedMaterial({ color: 0xb7875b, dashSize: 0.8, gapSize: 0.6 }));
+const sunBall = new THREE.Mesh(new THREE.SphereGeometry(1.1, 24, 16), new THREE.MeshBasicMaterial({ color: 0xe9b872 }));
+const shaft = new THREE.Mesh(new THREE.CylinderGeometry(1.55, 1.55, 1, 32, 1, true), new THREE.MeshBasicMaterial({ color: 0xffdf9e, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+const patch = new THREE.Mesh(new THREE.CircleGeometry(1.6, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0.55, depthWrite: false }));
+const sunGroup = new THREE.Group();
+sunGroup.add(sunArc, sunBall, shaft, patch);
+sunGroup.visible = false;
+scene.add(sunGroup);
+function sunDir(h) {
+  const t = (h - 6) / 14, el = Math.max(0.05, Math.sin(Math.PI * t)) * 1.08, az = (t - 0.5) * Math.PI * 1.25;
+  return V3(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
+}
+sunArc.geometry.setFromPoints(Array.from({ length: 57 }, (_, i) => sunDir(6 + i * 0.25).multiplyScalar(38).add(SUN_C)));
+sunArc.computeLineDistances();
+
+// ---------- State ----------
+const state = { e: 0, eTarget: 0, section: 0, hour: 15.5, daylight: false, wire: false, selected: null, view: 'overview' };
+
+function applyExplode() {
+  for (const m of parts) {
+    const u = m.userData;
+    m.position.y = u.base.y + u.dy * state.e;
+    m.scale.x = m.scale.z = 1 + u.s * state.e;
+  }
+}
+function applySection() {
+  const on = state.section > 0;
+  const d = lerp(13, -12, state.section / 100);
+  clipPlane.constant = d;
+  renderer.clippingPlanes = on ? [clipPlane] : [];
+  sectionHelper.visible = on;
+  sectionHelper.position.set(1, 3, d - 0.03);
+  $('sectionVal').textContent = on ? 'z ' + d.toFixed(1) + ' m' : 'Off';
+  $('sectionBtn').classList.toggle('selected', on);
+}
+function fmtHour(h) { const m = Math.round((h % 1) * 60); return String(Math.floor(h)).padStart(2, '0') + ':' + String(m).padStart(2, '0'); }
+function applySun() {
+  const dir = sunDir(state.hour), el = Math.asin(dir.y);
+  sun.position.copy(dir).multiplyScalar(50).add(sun.target.position);
+  const k = Math.sin(el);
+  sun.color.setRGB(1, lerp(0.78, 0.96, k), lerp(0.58, 0.88, k));
+  sun.intensity = 0.8 + 2.0 * Math.sqrt(k);
+  $('sunVal').textContent = fmtHour(state.hour) + ' · ' + Math.round(THREE.MathUtils.radToDeg(el)) + '°';
+  $('sunBtn').classList.toggle('selected', state.daylight);
+  sunGroup.visible = state.daylight;
+  if (!state.daylight) return;
+  sunBall.position.copy(dir).multiplyScalar(38).add(SUN_C);
+  const S = SKY.clone(); S.y += (LEVEL_DY + 1.6) * state.e;
+  const floorY = MID.y + 0.35 + LEVEL_DY * state.e + 0.02;
+  const show = dir.y > 0.2;
+  shaft.visible = patch.visible = show;
+  if (!show) return;
+  const Pt = S.clone().addScaledVector(dir, -(S.y - floorY) / dir.y);
+  const top = S.clone().addScaledVector(dir, 14);
+  shaft.position.copy(top).add(Pt).multiplyScalar(0.5);
+  shaft.scale.set(1, top.distanceTo(Pt), 1);
+  shaft.quaternion.setFromUnitVectors(V3(0, 1, 0), dir);
+  patch.position.copy(Pt);
+  patch.rotation.y = Math.atan2(dir.x, dir.z);
+  patch.scale.set(1, 1, Math.min(1 / dir.y, 3));
+}
+function applyVisibility() {
+  for (const m of parts) m.visible = visible[m.userData.sys];
+  document.querySelectorAll('.layer').forEach(el => el.classList.toggle('off', !visible[el.dataset.sys]));
+}
+
+// ---------- Panel ----------
+const VIEWS = {
+  overview: { pos: [36, 31, 48], target: [1, 4, 0], eyebrow: 'MATERIALS & SITE', title: 'A house drawn<br>by the land.', copy: 'A low, circular profile follows the fall of the mountain, offering a different horizon from every room.' },
+  terraces: { pos: [2, 58, 12], target: [0, 3, 0], eyebrow: 'PLAN', title: 'Three levels,<br>one landscape.', copy: 'Cascading rooms step lightly down the slope. Each roof becomes the planted terrace of the level above, gathered around a sheltered court.' },
+  screen: { pos: [9, 4.5, 23], target: [-3, 2, 6], eyebrow: 'FAÇADE', title: 'A breathing<br>timber veil.', copy: 'Fine vertical fins temper the alpine sun and create a soft, changing rhythm along the glazed façade.' },
+  roof: { pos: [-20, 30, 16], target: [0, 7, -3], eyebrow: 'ROOFSCAPE', title: 'A roof made<br>for the ridge.', copy: 'Native planting carries the mountain meadow across every horizontal surface, cooling the house below.' },
+  pavilion: { pos: [22, 17, 4], target: [6.8, 11, -8.4], eyebrow: 'LOOKOUT', title: 'The quiet<br>lookout.', copy: 'A raised, glass-wrapped pavilion gives the studio its own horizon above the living terraces.' },
+  section: { pos: [7, 11, 42], target: [1, 4.5, 0], eyebrow: 'LONG SECTION', title: 'Cut through<br>the main hall.', copy: 'A longitudinal cut opens the terraces like a drawing. Cut surfaces read in dark moss, as in a printed section. Drag the section slider to move the plane.' },
+  daylight: { pos: [22, 30, 30], target: [3.5, 4.5, -0.5], eyebrow: 'DAYLIGHT', title: 'Light through<br>the oculus.', copy: 'Move the sun across the day. A shaft of light falls through the central skylight and tracks slowly over the floor of the main hall.' },
+};
+const DEFAULT_STATS = () => [['03', 'Terraces'], [Math.round(totalArea).toLocaleString('en'), 'm² interior'], ['1,280', 'm altitude']];
+function setPanel(eyebrow, title, copy, stats) {
+  $('panelEyebrow').textContent = eyebrow;
+  $('panelTitle').innerHTML = title;
+  $('panelCopy').textContent = copy;
+  $('stats').innerHTML = stats.map(([b, s]) => `<div><b>${b}</b><span>${s}</span></div>`).join('');
+}
+function showViewText() {
+  const v = VIEWS[state.view];
+  setPanel(v.eyebrow, v.title, v.copy, DEFAULT_STATS());
+  $('clearSel').classList.remove('show');
+}
+
+// ---------- Selection ----------
+function select(mesh) {
+  if (state.selected) state.selected.material.emissive.setHex(0x000000);
+  state.selected = mesh;
+  if (!mesh) { showViewText(); return; }
+  mesh.material.emissive.setHex(0x7a4f22);
+  mesh.material.emissiveIntensity = 0.55;
+  const i = mesh.userData.info;
+  setPanel((SYSTEMS[mesh.userData.sys].label + (i.tag ? ' · ' + i.tag : '')).toUpperCase(), i.name, i.copy, i.specs);
+  $('clearSel').classList.add('show');
+}
+$('clearSel').addEventListener('click', () => select(null));
+
+// ---------- Camera moves ----------
+let tween = null;
+function flyTo(pos, target, dur = 1.3) {
+  tween = { t: 0, dur, p0: camera.position.clone(), t0: controls.target.clone(), p1: V3(...pos), t1: V3(...target) };
+}
+controls.addEventListener('start', () => { tween = null; });
+
+function setView(name, fly = true) {
+  const v = VIEWS[name]; if (!v) return;
+  state.view = name;
+  if (fly) flyTo(v.pos, v.target);
+  $('viewSelect').value = name;
+  document.querySelectorAll('.chapter').forEach(c => c.classList.toggle('active', c.dataset.focus === name));
+  if (name === 'section' && state.section === 0) setSection(52);
+  if (name === 'daylight') { setSection(0); state.daylight = true; if (state.hour > 17 || state.hour < 9) setHour(13); applySun(); }
+  if (name === 'screen') { visible.timber = true; applyVisibility(); }
+  select(null);
+}
+function setSection(v) { state.section = v; $('sectionRange').value = v; applySection(); }
+function setHour(h) { state.hour = h; $('sunRange').value = h; applySun(); }
+function setExplode(v) { state.eTarget = v / 100; $('explodeRange').value = v; $('explodeVal').textContent = v + '%'; $('explodeBtn').classList.toggle('selected', v > 0); }
+
+// ---------- UI wiring ----------
+document.querySelectorAll('.chapter').forEach(b => b.addEventListener('click', () => setView(b.dataset.focus)));
+$('viewSelect').addEventListener('change', e => setView(e.target.value));
+$('layers').innerHTML = Object.entries(SYSTEMS).map(([k, s]) =>
+  `<div class="layer" data-sys="${k}"><button class="toggle" type="button"><i class="dot" style="background:${s.color}"></i>${s.label}</button><button class="solo" type="button" title="Show only this system">ONLY</button></div>`).join('');
+document.querySelectorAll('.layer').forEach(el => {
+  const k = el.dataset.sys;
+  el.querySelector('.toggle').addEventListener('click', () => { visible[k] = !visible[k]; applyVisibility(); });
+  el.querySelector('.solo').addEventListener('click', () => { for (const s in visible) visible[s] = s === k; applyVisibility(); });
+});
+$('showAll').addEventListener('click', () => { for (const s in visible) visible[s] = true; applyVisibility(); });
+$('explodeRange').addEventListener('input', e => setExplode(+e.target.value));
+$('sectionRange').addEventListener('input', e => setSection(+e.target.value));
+$('sunRange').addEventListener('input', e => { state.daylight = true; setHour(+e.target.value); });
+$('explodeBtn').addEventListener('click', () => setExplode(state.eTarget > 0 ? 0 : 100));
+$('sectionBtn').addEventListener('click', () => setSection(state.section > 0 ? 0 : 52));
+$('sunBtn').addEventListener('click', () => { state.daylight = !state.daylight; applySun(); });
+$('wireframe').addEventListener('click', e => {
+  state.wire = !state.wire;
+  parts.forEach(m => { if (m.userData.sys !== 'landform') m.material.wireframe = state.wire; });
+  e.currentTarget.classList.toggle('selected', state.wire);
+});
+$('fullscreen').addEventListener('click', () => document.fullscreenElement ? document.exitFullscreen() : stage.requestFullscreen?.());
+$('reset').addEventListener('click', () => {
+  for (const s in visible) visible[s] = true;
+  applyVisibility(); setExplode(0); setSection(0);
+  state.daylight = false; setHour(15.5);
+  setView('overview');
+});
+
+// ---------- Picking ----------
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), tip = $('tip');
+function pick(ev) {
+  const r = renderer.domElement.getBoundingClientRect();
+  ndc.set((ev.clientX - r.left) / r.width * 2 - 1, -(ev.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const cut = state.section > 0 ? clipPlane.constant : Infinity;
+  const hit = ray.intersectObjects(parts, false).find(h => h.object.visible && h.point.z <= cut + 0.01);
+  return hit ? hit.object : null;
+}
+let down = null, hoverEv = null, hoverDirty = false;
+renderer.domElement.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 5) select(pick(e));
+  down = null;
+});
+renderer.domElement.addEventListener('pointermove', e => { hoverEv = e; hoverDirty = true; });
+renderer.domElement.addEventListener('pointerleave', () => { hoverEv = null; tip.style.opacity = 0; });
+function updateHover() {
+  if (!hoverEv || hoverEv.pointerType === 'touch' || (hoverEv.buttons & 1)) { tip.style.opacity = 0; return; }
+  const m = pick(hoverEv), r = stage.getBoundingClientRect();
+  renderer.domElement.style.cursor = m ? 'pointer' : 'grab';
+  if (!m) { tip.style.opacity = 0; return; }
+  tip.innerHTML = `<b>${m.userData.info.name}</b>${SYSTEMS[m.userData.sys].label.toUpperCase()}`;
+  tip.style.left = (hoverEv.clientX - r.left) + 'px';
+  tip.style.top = (hoverEv.clientY - r.top) + 'px';
+  tip.style.opacity = 1;
+}
+
+// ---------- Resize and loop ----------
+function resize() {
+  const w = host.clientWidth, h = host.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.fov = camera.aspect < 1.2 ? 32 * Math.min(1.9, 1.2 / camera.aspect) : 32;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(host);
+resize();
+
+const clock = new THREE.Clock();
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (tween) {
+    tween.t += dt / tween.dur;
+    const k = tween.t >= 1 ? 1 : (tween.t < 0.5 ? 4 * tween.t ** 3 : 1 - (-2 * tween.t + 2) ** 3 / 2);
+    camera.position.lerpVectors(tween.p0, tween.p1, k);
+    controls.target.lerpVectors(tween.t0, tween.t1, k);
+    if (tween.t >= 1) tween = null;
+  }
+  if (Math.abs(state.e - state.eTarget) > 0.0005) {
+    state.e += (state.eTarget - state.e) * Math.min(1, dt * 6);
+    applyExplode();
+    if (state.daylight) applySun();
+  }
+  controls.update();
+  if (hoverDirty) { hoverDirty = false; updateHover(); }
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+const v0 = VIEWS.overview;
+camera.position.set(...v0.pos);
+controls.target.set(...v0.target);
+applyVisibility(); applySection(); applySun(); setExplode(0); showViewText();
+$('loading').remove();
+window.__contourReady = true;
+frame();
+    </script>
+  </body>
+</html>
